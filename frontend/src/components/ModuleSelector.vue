@@ -1,15 +1,15 @@
 <template>
   <div>
-    <select v-if="moduleId" v-model="selected" @change="handleChange">
-      <option value="" disabled>Select Year</option>
-      <option v-for="yr in years" :key="yr.year_id" :value="yr.year_id">{{ yr.year_name }}</option>
-      <option value="__create">+ Create New Year</option>
+    <select v-model="selected" @change="handleChange">
+      <option value="" disabled>Select Module</option>
+      <option v-for="mod in modules" :key="mod.module_id" :value="mod.module_id">{{ mod.module_name }}</option>
+      <option value="__create">+ Create New Module</option>
     </select>
     <div v-if="showDialog" class="modal">
       <div class="modal-content">
-        <h3>Create New Year</h3>
-        <input v-model="newYearName" placeholder="Year Name" />
-        <button @click="createYear">Create</button>
+        <h3>Create New Module</h3>
+        <input v-model="newModuleName" placeholder="Module Name" />
+        <button @click="createModule">Create</button>
         <button @click="closeDialog">Cancel</button>
         <div v-if="error" class="error">{{ error }}</div>
       </div>
@@ -18,28 +18,27 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import api from '../api/axios.js'
-const props = defineProps({ modelValue: [String, Number, null], moduleId: [String, Number, null] })
+const props = defineProps({ modelValue: [String, Number, null] })
 const emit = defineEmits(['update:modelValue'])
 const selected = ref(props.modelValue)
-const years = ref([])
+const modules = ref([])
 const showDialog = ref(false)
-const newYearName = ref('')
+const newModuleName = ref('')
 const error = ref('')
 
-const fetchYears = async () => {
-  if (!props.moduleId) { years.value = []; return }
-  const res = await api.get('/years', { params: { module_id: props.moduleId } })
-  years.value = res.data
+const fetchModules = async () => {
+  const res = await api.get('/modules')
+  modules.value = res.data
 }
-watch(() => props.moduleId, fetchYears, { immediate: true })
+onMounted(fetchModules)
 watch(() => props.modelValue, v => { selected.value = v })
 
 function handleChange() {
   if (selected.value === '__create') {
     showDialog.value = true
-    newYearName.value = ''
+    newModuleName.value = ''
     error.value = ''
   } else {
     emit('update:modelValue', selected.value)
@@ -49,19 +48,19 @@ function closeDialog() {
   showDialog.value = false
   selected.value = ''
 }
-async function createYear() {
-  if (!newYearName.value.trim()) {
-    error.value = 'Year name required'
+async function createModule() {
+  if (!newModuleName.value.trim()) {
+    error.value = 'Module name required'
     return
   }
   try {
-    const res = await api.post(`/years/${props.moduleId}`, { year_name: newYearName.value })
-    await fetchYears()
-    selected.value = res.data.year_id
+    const res = await api.post('/modules', { module_name: newModuleName.value })
+    await fetchModules()
+    selected.value = res.data.module_id
     emit('update:modelValue', selected.value)
     showDialog.value = false
   } catch (e) {
-    error.value = e.response?.data?.error || 'Error creating year'
+    error.value = e.response?.data?.error || 'Error creating module'
   }
 }
 </script>

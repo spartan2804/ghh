@@ -16,8 +16,8 @@ router.get('/', async (req, res) => {
   yearController.getYears(req, res);
 });
 
-router.get('/:id', yearController.getYearById);
-router.post('/', yearController.createYear);
+router.get('/:module_id', yearController.getYearByModuleId);
+router.post('/:module_id', yearController.createYear);
 router.put('/:id', yearController.updateYear);
 router.delete('/:id', yearController.deleteYear);
 

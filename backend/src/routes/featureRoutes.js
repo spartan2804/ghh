@@ -17,8 +17,8 @@ router.get('/', async (req, res) => {
   featureController.getFeatures(req, res);
 });
 
-router.get('/:id', featureController.getFeatureById);
-router.post('/', featureController.createFeature);
+router.get('/:year_id', featureController.getFeaturesByYearId);
+router.post('/:year_id', featureController.createFeature);
 router.put('/:id', featureController.updateFeature);
 router.delete('/:id', featureController.deleteFeature);
 

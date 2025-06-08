@@ -3,7 +3,8 @@ const { pool } = require('../config/db');
 // Create a new feature
 exports.createFeature = async (req, res) => {
   try {
-    const { feature_name, year_id } = req.body;
+    const { year_id } = req.params;
+    const { feature_name } = req.body;
     if (!feature_name || !year_id) return res.status(400).json({ error: 'feature_name and year_id are required' });
     const [result] = await pool.query('INSERT INTO features (feature_name, year_id) VALUES (?, ?)', [feature_name, year_id]);
     res.status(201).json({ feature_id: result.insertId, feature_name, year_id });
@@ -23,12 +24,12 @@ exports.getFeatures = async (req, res) => {
 };
 
 // Get feature by ID
-exports.getFeatureById = async (req, res) => {
+exports.getFeaturesByYearId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const [rows] = await pool.query('SELECT * FROM features WHERE feature_id = ?', [id]);
+    const { year_id } = req.params;
+    const [rows] = await pool.query('SELECT * FROM features WHERE year_id = ?', [year_id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Feature not found' });
-    res.json(rows[0]);
+    res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

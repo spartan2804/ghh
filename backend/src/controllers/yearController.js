@@ -3,7 +3,8 @@ const { pool } = require('../config/db');
 // Create a new year
 exports.createYear = async (req, res) => {
   try {
-    const { year_name, module_id } = req.body;
+    const { module_id } = req.params;
+    const { year_name } = req.body;
     if (!year_name || !module_id) return res.status(400).json({ error: 'year_name and module_id are required' });
     const [result] = await pool.query('INSERT INTO yrs (year_name, module_id) VALUES (?, ?)', [year_name, module_id]);
     res.status(201).json({ year_id: result.insertId, year_name, module_id });
@@ -23,12 +24,12 @@ exports.getYears = async (req, res) => {
 };
 
 // Get year by ID
-exports.getYearById = async (req, res) => {
+exports.getYearByModuleId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const [rows] = await pool.query('SELECT * FROM yrs WHERE year_id = ?', [id]);
+    const { module_id } = req.params;
+    const [rows] = await pool.query('SELECT * FROM yrs WHERE module_id = ?', [module_id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Year not found' });
-    res.json(rows[0]);
+    res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
